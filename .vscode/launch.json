@@ -7,14 +7,17 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "name": "Launch Server.ts",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/server.ts"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Server.js",
+      "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/dist/server.js",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js"
-      ]
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     }
   ]
 }
