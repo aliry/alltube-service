@@ -1,0 +1,10 @@
+version: '3'
+services:
+  api-server:
+    build:
+      context: .
+    container_name: alltube-api-server
+    image: api-server
+networks:
+  dev-network:
+    driver: bridge
