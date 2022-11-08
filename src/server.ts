@@ -7,12 +7,12 @@ if (result.error) {
 }
 
 import app from "./app";
-import { downloadsDir } from "./constants";
+import { DownloadsDir } from "./constants";
 import logger from "./logger";
 
 const PORT = process.env.PORT || 3000;
-fs.ensureDirSync(downloadsDir.video);
-fs.ensureDirSync(downloadsDir.audio);
+fs.ensureDirSync(DownloadsDir.Video);
+fs.ensureDirSync(DownloadsDir.Audio);
 
 const serve = () =>
   app.listen(PORT, () => {

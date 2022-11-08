@@ -1,26 +1,40 @@
 import youtubeDl from "youtube-dl-exec";
-import { downloadsDir } from "./constants";
+import { DownloadsDir, FileExtension } from "./constants";
 import fs from "fs-extra";
 
-export const DownloadInfo = async (url: string) => {
+export interface IDownloadInfo {
+  title: string;
+  id: string;
+  description: string;
+  duration: number;
+}
+
+const OutputFormat = "%(title)s.%(ext)s";
+
+export const DownloadInfo = async (url: string): Promise<IDownloadInfo> => {
   const flags = {
     skipDownload: true,
     dumpSingleJson: true,
   };
   const info = await youtubeDl(url, flags);
-  return info;
+  return {
+    title: info.title,
+    id: info.id,
+    description: info.description,
+    duration: info.duration,
+  };
 };
 
 export const DownloadAudio = async (url: string) => {
   emptyAudioDir();
   const flags = {
-    audioFormat: "mp3",
+    audioFormat: FileExtension.Audio,
     extractAudio: true,
-    output: "%(title)s.%(ext)s",
+    output: OutputFormat,
   };
-  const options = { cwd: downloadsDir.audio };
+  const options = { cwd: DownloadsDir.Audio };
   await youtubeDl(url, flags, options);
-  const files = fs.readdirSync(downloadsDir.audio);
+  const files = fs.readdirSync(DownloadsDir.Audio);
   if (files.length < 1) {
     throw new Error("Error downloading audio");
   }
@@ -30,12 +44,12 @@ export const DownloadAudio = async (url: string) => {
 export const DownloadVideo = async (url: string) => {
   emptyVideoDir();
   const flags = {
-    remuxVideo: "mp4",
-    output: "%(title)s.%(ext)s",
+    remuxVideo: FileExtension.Video,
+    output: OutputFormat,
   };
-  const options = { cwd: downloadsDir.video };
+  const options = { cwd: DownloadsDir.Video };
   await youtubeDl(url, flags, options);
-  const files = fs.readdirSync(downloadsDir.video);
+  const files = fs.readdirSync(DownloadsDir.Video);
   if (files.length < 1) {
     throw new Error("Error downloading video");
   }
@@ -43,9 +57,9 @@ export const DownloadVideo = async (url: string) => {
 };
 
 function emptyAudioDir() {
-  fs.emptyDirSync(downloadsDir.audio);
+  fs.emptyDirSync(DownloadsDir.Audio);
 }
 
 function emptyVideoDir() {
-  fs.emptyDirSync(downloadsDir.video);
+  fs.emptyDirSync(DownloadsDir.Video);
 }

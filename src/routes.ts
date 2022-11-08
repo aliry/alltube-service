@@ -2,7 +2,8 @@ import { Router, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import logger from "./logger";
 import { DownloadAudio, DownloadInfo, DownloadVideo } from "./downloader";
-import { downloadsDir } from "./constants";
+import { DownloadsDir, DownloadStatus, DownloadType } from "./constants";
+import { RequestCache } from "./requestsCache";
 
 const swaggerUiOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
@@ -10,6 +11,8 @@ const swaggerUiOptions = {
 const apiSpec: swaggerUi.JsonObject = require("../openapi.json");
 
 const router = Router();
+
+const requestCache = new RequestCache();
 
 // Dev routes
 if (process.env.NODE_ENV === "development") {
@@ -42,8 +45,15 @@ router.get("/api/dl-audio", async (req, res) => {
     return;
   }
   try {
-    const fileName = await DownloadAudio(url);
-    res.status(200).sendFile(fileName, { root: downloadsDir.audio });
+    if (respondIfRequestExist(url, DownloadType.Audio, res)) {
+      return;
+    }
+    const downloadPromise = DownloadAudio(url);
+    requestCache.set(url, {
+      downloadPromise,
+      downloadType: DownloadType.Audio,
+    });
+    res.status(200).json({ message: "Download started." });
   } catch (err) {
     handleDownloadError(err, res);
   }
@@ -55,8 +65,15 @@ router.get("/api/dl-video", async (req, res) => {
     return;
   }
   try {
-    const fileName = await DownloadVideo(url);
-    res.status(200).sendFile(fileName, { root: downloadsDir.video });
+    if (respondIfRequestExist(url, DownloadType.Video, res)) {
+      return;
+    }
+    const downloadPromise = DownloadVideo(url);
+    requestCache.set(url, {
+      downloadPromise,
+      downloadType: DownloadType.Video,
+    });
+    res.status(200).json({ message: "Download started." });
   } catch (err) {
     handleDownloadError(err, res);
   }
@@ -77,6 +94,28 @@ function validateURL(url: string, res: Response): boolean {
 function handleDownloadError(err: unknown, res: Response) {
   logger.error(err);
   res.status(500).json({ message: "An error occurred while downloading." });
+}
+
+function respondIfRequestExist(
+  url: string,
+  downloadType: DownloadType,
+  res: Response
+): boolean {
+  const info = requestCache.get(url, downloadType);
+  if (!info) {
+    return false;
+  }
+  if (info.status === DownloadStatus.InProgress) {
+    res.status(200).json({ message: "Download in progress." });
+  } else if (info.status === DownloadStatus.Complete && info.fileName) {
+    res.status(200).sendFile(info.fileName, {
+      root:
+        downloadType === DownloadType.Audio
+          ? DownloadsDir.Audio
+          : DownloadsDir.Video,
+    });
+  }
+  return true;
 }
 
 export default router;
