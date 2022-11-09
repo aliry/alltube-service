@@ -4,6 +4,7 @@ import logger from "./logger";
 import { DownloadAudio, DownloadInfo, DownloadVideo } from "./downloader";
 import { DownloadsDir, DownloadStatus, DownloadType } from "./constants";
 import { RequestCache } from "./requestsCache";
+import fs from "fs-extra";
 
 const swaggerUiOptions = {
   customCss: ".swagger-ui .topbar { display: none }",
@@ -107,15 +108,16 @@ function respondIfRequestExist(
   }
   if (info.status === DownloadStatus.InProgress) {
     res.status(200).json({ message: "Download in progress." });
-  } else if (info.status === DownloadStatus.Complete && info.fileName) {
-    res.status(200).sendFile(info.fileName, {
-      root:
-        downloadType === DownloadType.Audio
-          ? DownloadsDir.Audio
-          : DownloadsDir.Video,
-    });
+    return true;
+  } else if (
+    info.status === DownloadStatus.Complete &&
+    info.filePath &&
+    fs.existsSync(info.filePath)
+  ) {
+    res.status(200).sendFile(info.filePath, { root: "./" });
+    return true;
   }
-  return true;
+  return false;
 }
 
 export default router;

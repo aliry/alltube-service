@@ -11,8 +11,12 @@ import { DownloadsDir } from "./constants";
 import logger from "./logger";
 
 const PORT = process.env.PORT || 3000;
+
+// Create the downloads directory if it doesn't exist
 fs.ensureDirSync(DownloadsDir.Video);
 fs.ensureDirSync(DownloadsDir.Audio);
+fs.emptyDirSync(DownloadsDir.Audio);
+fs.emptyDirSync(DownloadsDir.Video);
 
 const serve = () =>
   app.listen(PORT, () => {

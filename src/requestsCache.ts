@@ -1,16 +1,18 @@
 import { DownloadsDir, DownloadStatus, DownloadType } from "./constants";
 import fs from "fs-extra";
 import path from "path";
+import logger from "./logger";
 
 export interface IRequestInfo {
   downloadPromise: Promise<string>;
   downloadType: DownloadType;
   status?: DownloadStatus;
-  fileName?: string;
+  filePath?: string;
   createdAt?: number;
 }
 
-const CacheRetentionTime = 1000 * 60 * 1;
+const CacheRetentionTime = 1000 * 60 * 10; // 10 minutes
+const MaxCacheSize = 100;
 
 export class RequestCache {
   private cache: Map<string, IRequestInfo>;
@@ -21,15 +23,16 @@ export class RequestCache {
   }
 
   public set(url: string, info: IRequestInfo) {
+    this.deleteOldRequests();
     const key = this.generateKey(url, info.downloadType);
     info.createdAt = Date.now();
     info.status = DownloadStatus.InProgress;
     this.cache.set(key, info);
     info.downloadPromise
-      .then((fileName) => {
+      .then((filePath) => {
         const requestInfo = this.cache.get(key);
         if (requestInfo) {
-          requestInfo.fileName = fileName;
+          requestInfo.filePath = filePath;
           requestInfo.status = DownloadStatus.Complete;
         }
       })
@@ -46,24 +49,6 @@ export class RequestCache {
     return this.cache.get(key);
   }
 
-  public has(url: string, downloadType: DownloadType) {
-    const key = this.generateKey(url, downloadType);
-    return this.cache.has(key);
-  }
-
-  public delete(url: string, downloadType: DownloadType) {
-    const key = this.generateKey(url, downloadType);
-    this.cache.delete(key);
-  }
-
-  public clear() {
-    this.cache.clear();
-  }
-
-  public get size() {
-    return this.cache.size;
-  }
-
   private generateKey(url: string, downloadType: DownloadType) {
     const downloadTypeStr =
       downloadType === DownloadType.Audio ? "audio" : "video";
@@ -71,30 +56,33 @@ export class RequestCache {
   }
 
   private deleteOldRequests() {
-    const deletePromises: Promise<void>[] = [];
-    this.cache.forEach((info, key) => {
-      if (
-        info.status !== DownloadStatus.InProgress &&
-        info.createdAt &&
-        info.createdAt < Date.now() - CacheRetentionTime
-      ) {
-        deletePromises.push(
-          new Promise<void>((resolve) => {
-            const filePath = path.join(
-              info.downloadType === DownloadType.Audio
-                ? DownloadsDir.Audio
-                : DownloadsDir.Video,
-              info.fileName ?? ""
-            );
-            fs.promises.rm(filePath).finally(() => {
-              this.cache.delete(key);
-              resolve();
-            });
-          })
-        );
-      }
-    });
+    if (this.cache.size < MaxCacheSize) {
+      return;
+    }
+    setTimeout(() => {
+      const deletePromises: Promise<void>[] = [];
+      this.cache.forEach((info, key) => {
+        if (
+          info.status !== DownloadStatus.InProgress &&
+          info.createdAt &&
+          info.createdAt < Date.now() - CacheRetentionTime
+        ) {
+          deletePromises.push(
+            new Promise<void>((resolve) => {
+              fs.promises.rm(info.filePath ?? "").finally(() => {
+                this.cache.delete(key);
+                resolve();
+              });
+            })
+          );
+        }
+      });
 
-    Promise.all(deletePromises);
+      Promise.all(deletePromises).then(() => {
+        logger.info(
+          `Cache cleanup completed. Deleted ${deletePromises.length} items`
+        );
+      });
+    }, 500);
   }
 }
