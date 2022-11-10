@@ -1,6 +1,7 @@
+export const DownloadRootFolder = "./downloads";
 export const DownloadsDir = {
-  Audio: "./downloads/audio",
-  Video: "./downloads/video",
+  Audio: `${DownloadRootFolder}/audio`,
+  Video: `${DownloadRootFolder}/video`,
 };
 
 export const enum DownloadType {
