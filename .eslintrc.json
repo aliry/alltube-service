@@ -9,6 +9,9 @@
       "modules": true
     }
   },
+  "globals": {
+    "NodeJS": true
+  },
   "env": {
     "node": true,
     "jest": true

@@ -17,10 +17,14 @@ const MaxCacheSizeKb = 1024 * 1024 * 500; // 500 MB
 
 export class RequestCache {
   private cache: Map<string, IRequestInfo>;
+  private _intervalId?: NodeJS.Timeout;
 
   constructor() {
     this.cache = new Map();
-    setInterval(this.deleteOldRequests.bind(this), CacheRetentionTime);
+    this._intervalId = setInterval(
+      this.deleteOldRequests.bind(this),
+      CacheRetentionTime
+    );
   }
 
   public set(url: string, info: IRequestInfo) {
@@ -48,6 +52,12 @@ export class RequestCache {
   public get(url: string, downloadType: DownloadType) {
     const key = this.generateKey(url, downloadType);
     return this.cache.get(key);
+  }
+
+  public dispose() {
+    if (this._intervalId) {
+      clearInterval(this._intervalId);
+    }
   }
 
   private generateKey(url: string, downloadType: DownloadType) {
