@@ -1,21 +1,22 @@
-export const DownloadRootFolder = "./downloads";
+/* eslint-disable no-unused-vars */
+export const DownloadRootFolder = './downloads';
 export const DownloadsDir = {
   Audio: `${DownloadRootFolder}/audio`,
-  Video: `${DownloadRootFolder}/video`,
+  Video: `${DownloadRootFolder}/video`
 };
 
 export const enum DownloadType {
   Audio,
-  Video,
+  Video
 }
 
 export const enum DownloadStatus {
   InProgress,
   Complete,
-  Error,
+  Error
 }
 
 export const FileExtension = {
-  Audio: "mp3",
-  Video: "mp4",
+  Audio: 'mp3',
+  Video: 'mp4'
 };
