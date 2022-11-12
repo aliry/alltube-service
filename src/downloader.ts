@@ -32,10 +32,14 @@ export const DownloadAudio = async (url: string) => {
     output: OutputFormat
   };
   const options = { cwd: DownloadsDir.Audio };
-  const info = await youtubeDl(url, flags, options);
-  const fileName = getFileNameFromYtDlOutput(info);
-
-  return path.join(DownloadsDir.Audio, `${fileName}.${FileExtension.Audio}`);
+  try {
+    const info = await youtubeDl(url, flags, options);
+    const fileName = getFileNameFromYtDlOutput(info);
+    return path.join(DownloadsDir.Audio, `${fileName}.${FileExtension.Audio}`);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
 };
 
 export const DownloadVideo = async (url: string) => {

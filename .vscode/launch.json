@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Attach by Process ID",
+      "processId": "${command:PickProcess}",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Launch Server.ts",
@@ -18,6 +25,21 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/dist/server.js",
       "outFiles": ["${workspaceFolder}/**/*.js"]
+    },
+    {
+      // 1. Type of application to attach to
+      "type": "node",
+
+      // 2. Type of request. In this case 'attach'
+      "request": "attach",
+      // 3. Restart the debugger whenever it gets disconnected
+      "restart": true,
+      // 4. Port to connect to
+      "port": 9229,
+      // 5. Name of the configuration
+      "name": "Docker: Attach to Node",
+      // 6. Connect to /node directory of docker
+      "remoteRoot": "/app"
     }
   ]
 }

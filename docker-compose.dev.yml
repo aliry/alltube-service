@@ -5,6 +5,17 @@ services:
       context: .
     container_name: alltube-api-server
     image: api-server
+    command: npm run dev-server
+    volumes:
+      - .:/app
+      - /node/node_modules
+      - ./logs:/app/logs
+      - ./downloads:/app/downloads
+      - ./downloads/audio:/app/downloads/audio
+      - ./downloads/video:/app/downloads/video
+    ports:
+      - "3000:3000"
+      - "9229:9229"
 networks:
   dev-network:
     driver: bridge

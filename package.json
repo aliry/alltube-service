@@ -10,11 +10,13 @@
     "build": "tsc",
     "lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts",
     "dev": "./scripts/dev.sh",
-    "dev-server": "NODE_ENV=development nodemon",
+    "dev-server": "NODE_ENV=development nodemon --inspect=0.0.0.0:9229 ./dist/src/server.js",
     "ts-node-server": "ts-node src/server.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "test": "jest --forceExit",
-    "fix-lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts --fix"
+    "fix-lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts --fix",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d --force-recreate",
+    "docker:prod": "docker-compose -f docker-compose.yml up -d --force-recreate"
   },
   "keywords": [],
   "author": "Ali Roudaki",
