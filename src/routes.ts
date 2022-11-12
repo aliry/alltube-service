@@ -1,33 +1,36 @@
-import { Router, Response } from "express";
-import swaggerUi from "swagger-ui-express";
-import logger from "./logger";
-import { DownloadAudio, DownloadInfo, DownloadVideo } from "./downloader";
-import { DownloadsDir, DownloadStatus, DownloadType } from "./constants";
-import { RequestCache } from "./requestsCache";
-import fs from "fs-extra";
-
-const swaggerUiOptions = {
-  customCss: ".swagger-ui .topbar { display: none }",
-};
-const apiSpec: swaggerUi.JsonObject = require("../openapi.json");
-
-const router = Router();
+import { Router } from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { DownloadAudio, DownloadInfo, DownloadVideo } from './downloader';
+import { DownloadType } from './constants';
+import { RequestCache } from './requestsCache';
+import {
+  handleDownloadError,
+  respondIfRequestExist,
+  validateURL
+} from './routesHelper';
 
 const requestCache = new RequestCache();
 
+const swaggerUiOptions = {
+  customCss: '.swagger-ui .topbar { display: none }'
+};
+import apiSpec from '../openapi.json';
+
+const router = Router();
+
 // Dev routes
-if (process.env.NODE_ENV === "development") {
-  router.use("/dev/api-docs", swaggerUi.serve);
-  router.get("/dev/api-docs", swaggerUi.setup(apiSpec, swaggerUiOptions));
+if (process.env.NODE_ENV === 'development') {
+  router.use('/dev/api-docs', swaggerUi.serve);
+  router.get('/dev/api-docs', swaggerUi.setup(apiSpec, swaggerUiOptions));
 }
 
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
   res.json({
-    message: "AllTube service is running!",
+    message: 'AllTube service is running!'
   });
 });
 
-router.get("/api/dl-info", async (req, res) => {
+router.get('/api/dl-info', async (req, res) => {
   const url = req.query.url as string;
   if (!validateURL(url, res)) {
     return;
@@ -40,84 +43,44 @@ router.get("/api/dl-info", async (req, res) => {
   }
 });
 
-router.get("/api/dl-audio", async (req, res) => {
+router.get('/api/dl-audio', async (req, res) => {
   const url = req.query.url as string;
   if (!validateURL(url, res)) {
     return;
   }
   try {
-    if (respondIfRequestExist(url, DownloadType.Audio, res)) {
+    if (respondIfRequestExist(url, DownloadType.Audio, res, requestCache)) {
       return;
     }
     const downloadPromise = DownloadAudio(url);
     requestCache.set(url, {
       downloadPromise,
-      downloadType: DownloadType.Audio,
+      downloadType: DownloadType.Audio
     });
-    res.status(200).json({ message: "Download started." });
+    res.status(200).json({ message: 'Download started.' });
   } catch (err) {
     handleDownloadError(err, res);
   }
 });
 
-router.get("/api/dl-video", async (req, res) => {
+router.get('/api/dl-video', async (req, res) => {
   const url = req.query.url as string;
   if (!validateURL(url, res)) {
     return;
   }
   try {
-    if (respondIfRequestExist(url, DownloadType.Video, res)) {
+    if (respondIfRequestExist(url, DownloadType.Video, res, requestCache)) {
       return;
     }
     const downloadPromise = DownloadVideo(url);
     requestCache.set(url, {
       downloadPromise,
-      downloadType: DownloadType.Video,
+      downloadType: DownloadType.Video
     });
-    res.status(200).json({ message: "Download started." });
+    res.status(200).json({ message: 'Download started.' });
   } catch (err) {
     handleDownloadError(err, res);
   }
 });
-
-function validateURL(url: string, res: Response): boolean {
-  try {
-    new URL(url);
-    return true;
-  } catch (err) {
-    res.status(400).json({
-      message: "Invalid or missing URL parameter.",
-    });
-    return false;
-  }
-}
-
-function handleDownloadError(err: unknown, res: Response) {
-  logger.error(err);
-  res.status(500).json({ message: "An error occurred while downloading." });
-}
-
-function respondIfRequestExist(
-  url: string,
-  downloadType: DownloadType,
-  res: Response
-): boolean {
-  const info = requestCache.get(url, downloadType);
-  if (!info) {
-    return false;
-  }
-  if (info.status === DownloadStatus.InProgress) {
-    res.status(200).json({ message: "Download in progress." });
-    return true;
-  } else if (
-    info.status === DownloadStatus.Complete &&
-    info.filePath &&
-    fs.existsSync(info.filePath)
-  ) {
-    res.status(200).sendFile(info.filePath, { root: "./" });
-    return true;
-  }
-  return false;
-}
 
 export default router;

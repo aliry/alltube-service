@@ -1,8 +1,8 @@
-import { DownloadRootFolder, DownloadStatus, DownloadType } from "./constants";
-import fs from "fs-extra";
-import path from "path";
-import logger from "./logger";
-import getFolderSize from "get-folder-size";
+import { DownloadRootFolder, DownloadStatus, DownloadType } from './constants';
+import fs from 'fs-extra';
+import path from 'path';
+import logger from './logger';
+import getFolderSize from 'get-folder-size';
 
 export interface IRequestInfo {
   downloadPromise: Promise<string>;
@@ -52,7 +52,7 @@ export class RequestCache {
 
   private generateKey(url: string, downloadType: DownloadType) {
     const downloadTypeStr =
-      downloadType === DownloadType.Audio ? "audio" : "video";
+      downloadType === DownloadType.Audio ? 'audio' : 'video';
     return `${downloadTypeStr}|${url}`;
   }
 
@@ -71,7 +71,7 @@ export class RequestCache {
         ) {
           deletePromises.push(
             new Promise<void>((resolve) => {
-              fs.promises.rm(info.filePath ?? "").finally(() => {
+              fs.promises.rm(info.filePath ?? '').finally(() => {
                 this.cache.delete(key);
                 resolve();
               });
@@ -90,7 +90,7 @@ export class RequestCache {
 
   private async isMaxCacheSizeExceeded() {
     return new Promise<boolean>((resolve) => {
-      const dirPath = path.join(__dirname, "../", DownloadRootFolder);
+      const dirPath = path.join(__dirname, '../', DownloadRootFolder);
       getFolderSize(dirPath, (err, size) => resolve(size > MaxCacheSizeKb));
     });
   }
