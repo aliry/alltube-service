@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import fs from 'fs-extra';
 
-const result = dotenv.config();
-if (result.error) {
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config();
+} else {
   dotenv.config({ path: '.env.development' });
 }
 

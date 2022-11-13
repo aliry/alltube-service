@@ -1,12 +1,10 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import path from 'path';
 import express, { Request, Response, NextFunction } from 'express';
 import ApplicationError from './errors/application-error';
 import routes from './routes';
 import logger from './logger';
-
-const app = express();
+import helmet from 'helmet';
 
 function logResponseTime(req: Request, res: Response, next: NextFunction) {
   const startHrTime = process.hrtime();
@@ -25,15 +23,25 @@ function logResponseTime(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+const app = express();
+
+app.use(helmet());
 app.use(logResponseTime);
+app.disable('x-powered-by');
+
+// API-Key Protection
+app.use((req, res, next) => {
+  const apiKey = req.get('API-Key');
+  if (!apiKey || apiKey !== process.env.API_KEY) {
+    res.status(401).json({ error: 'Unauthorized' });
+  } else {
+    next();
+  }
+});
 
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(
-  express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 })
-);
 
 app.use(routes);
 
