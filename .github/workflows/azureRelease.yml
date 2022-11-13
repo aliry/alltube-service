@@ -31,6 +31,7 @@ jobs:
         with:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: alltubedns${{ github.run_number }}
+          ports: 3000
           image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:${{ github.sha }}
           registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           registry-username: ${{ secrets.REGISTRY_USERNAME }}
