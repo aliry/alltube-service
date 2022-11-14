@@ -40,6 +40,22 @@
       "name": "Docker: Attach to Node",
       // 6. Connect to /node directory of docker
       "remoteRoot": "/app"
+    },
+    {
+      "name": "Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/jest/bin/jest.js",
+        "--config",
+        "${workspaceRoot}/jest.config.js",
+        "--runInBand"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "port": 9229,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"]
     }
   ]
 }
