@@ -13,3 +13,7 @@ The service is using [youtube-dl-exec](https://www.npmjs.com/package/youtube-dl-
 ## Notice
 
 Downloading videos from Youtube is not allowed in many cases. Make sure to follow youtube terms and conditions.
+
+## Resources
+
+[Configure a GitHub Action to create a container instance](https://learn.microsoft.com/en-us/azure/container-instances/container-instances-github-action)
