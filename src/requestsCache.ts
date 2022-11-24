@@ -54,6 +54,11 @@ export class RequestCache {
     return this.cache.get(key);
   }
 
+  public delete(url: string, downloadType: DownloadType) {
+    const key = this.generateKey(url, downloadType);
+    this.cache.delete(key);
+  }
+
   public dispose() {
     if (this._intervalId) {
       clearInterval(this._intervalId);

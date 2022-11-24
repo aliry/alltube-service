@@ -40,8 +40,30 @@ export function respondIfRequestExist(
     info.filePath &&
     fs.existsSync(info.filePath)
   ) {
-    res.status(200).sendFile(info.filePath, { root: './' });
+    const fileName = info.filePath.split('/').pop() ?? '';
+    res
+      .status(200)
+      .set('X-File-Name', encodeRFC5987ValueChars(fileName))
+      .sendFile(info.filePath, { root: './' });
+    return true;
+  }
+  if (info.status === DownloadStatus.Error) {
+    res.status(500).json({ message: 'An error occurred while downloading.' });
+    requestCache.delete(url, downloadType);
     return true;
   }
   return false;
+}
+
+function encodeRFC5987ValueChars(str: string) {
+  return (
+    encodeURIComponent(str)
+      // Note that although RFC3986 reserves "!", RFC5987 does not,
+      // so we do not need to escape it
+      .replace(/['()]/g, escape) // i.e., %27 %28 %29
+      .replace(/\*/g, '%2A')
+      // The following are not required for percent-encoding per RFC5987,
+      // so we can allow for a little better readability over the wire: |`^
+      .replace(/%(?:7C|60|5E)/g, unescape)
+  );
 }
