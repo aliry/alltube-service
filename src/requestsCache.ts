@@ -1,12 +1,20 @@
-import { DownloadRootFolder, DownloadStatus, DownloadType } from './constants';
+import {
+  DownloadRootFolder,
+  DownloadsDir,
+  DownloadStatus,
+  DownloadType,
+  FileExtension
+} from './constants';
 import fs from 'fs-extra';
 import path from 'path';
 import logger from './logger';
 import getFolderSize from 'get-folder-size';
+import { IDownloadInfo } from './downloader';
 
 export interface IRequestInfo {
-  downloadPromise: Promise<string>;
+  downloadPromise: Promise<void>;
   downloadType: DownloadType;
+  downloadInfo: IDownloadInfo;
   status?: DownloadStatus;
   filePath?: string;
   createdAt?: number;
@@ -34,10 +42,14 @@ export class RequestCache {
     info.status = DownloadStatus.InProgress;
     this.cache.set(key, info);
     info.downloadPromise
-      .then((filePath) => {
+      .then(() => {
         const requestInfo = this.cache.get(key);
         if (requestInfo) {
-          requestInfo.filePath = filePath;
+          const fileInfo = this.extractFolderAndExt(requestInfo);
+          requestInfo.filePath = path.join(
+            fileInfo.folder,
+            `${requestInfo.downloadInfo.title}.${fileInfo.ext}`
+          );
           requestInfo.status = DownloadStatus.Complete;
         }
       })
@@ -108,5 +120,24 @@ export class RequestCache {
       const dirPath = path.join(__dirname, '../', DownloadRootFolder);
       getFolderSize(dirPath, (err, size) => resolve(size > MaxCacheSizeKb));
     });
+  }
+
+  private extractFolderAndExt(requestInfo: IRequestInfo): {
+    folder: string;
+    ext: string;
+  } {
+    if (requestInfo.downloadType === DownloadType.Audio) {
+      return {
+        folder: DownloadsDir.Audio,
+        ext: FileExtension.Audio
+      };
+    }
+    if (requestInfo.downloadType === DownloadType.Video) {
+      return {
+        folder: DownloadsDir.Video,
+        ext: FileExtension.Video
+      };
+    }
+    throw 'Invalid request info.';
   }
 }

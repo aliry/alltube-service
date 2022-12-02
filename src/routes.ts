@@ -52,12 +52,14 @@ router.get('/api/dl-audio', async (req, res) => {
     if (respondIfRequestExist(url, DownloadType.Audio, res, requestCache)) {
       return;
     }
+    const info = await DownloadInfo(url);
     const downloadPromise = DownloadAudio(url);
     requestCache.set(url, {
+      downloadInfo: info,
       downloadPromise,
       downloadType: DownloadType.Audio
     });
-    res.status(200).json({ message: 'Download started.' });
+    res.status(200).json(info);
   } catch (err) {
     handleDownloadError(err, res);
   }
@@ -72,12 +74,14 @@ router.get('/api/dl-video', async (req, res) => {
     if (respondIfRequestExist(url, DownloadType.Video, res, requestCache)) {
       return;
     }
+    const info = await DownloadInfo(url);
     const downloadPromise = DownloadVideo(url);
     requestCache.set(url, {
+      downloadInfo: info,
       downloadPromise,
       downloadType: DownloadType.Video
     });
-    res.status(200).json({ message: 'Download started.' });
+    res.status(200).json(info);
   } catch (err) {
     handleDownloadError(err, res);
   }
