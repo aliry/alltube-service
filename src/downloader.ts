@@ -9,8 +9,6 @@ export interface IDownloadInfo {
   duration: number;
 }
 
-const OutputFormat = '%(title)s.%(ext)s';
-
 export const DownloadInfo = async (url: string): Promise<IDownloadInfo> => {
   const flags = {
     dumpJson: true
@@ -25,23 +23,21 @@ export const DownloadInfo = async (url: string): Promise<IDownloadInfo> => {
   };
 };
 
-export const DownloadAudio = async (url: string) => {
+export const DownloadAudio = async (url: string, fileName: string) => {
   const flags = {
     audioFormat: FileExtension.Audio,
     extractAudio: true,
-    output: OutputFormat,
-    addMetadata: true,
-    embedThumbnail: true
+    output: fileName,
+    addMetadata: true
   };
   const options = { cwd: DownloadsDir.Audio };
   await youtubeDl(url, flags, options);
 };
 
-export const DownloadVideo = async (url: string) => {
+export const DownloadVideo = async (url: string, fileName: string) => {
   const flags = {
-    remuxVideo: FileExtension.Video,
-    embedThumbnail: true,
-    output: OutputFormat
+    recodeVideo: FileExtension.Video,
+    output: fileName
   };
   const options = { cwd: DownloadsDir.Video };
   await youtubeDl(url, flags, options);

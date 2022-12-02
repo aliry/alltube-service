@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { DownloadAudio, DownloadInfo, DownloadVideo } from './downloader';
-import { DownloadType } from './constants';
+import { DownloadType, FileExtension } from './constants';
 import { RequestCache } from './requestsCache';
 import {
+  encodeRFC5987ValueChars,
   handleDownloadError,
   respondIfRequestExist,
   validateURL
@@ -53,11 +54,15 @@ router.get('/api/dl-audio', async (req, res) => {
       return;
     }
     const info = await DownloadInfo(url);
-    const downloadPromise = DownloadAudio(url);
+    const encodedFileName = `${encodeRFC5987ValueChars(info.title)}.${
+      FileExtension.Audio
+    }`;
+    const downloadPromise = DownloadAudio(url, encodedFileName);
     requestCache.set(url, {
       downloadInfo: info,
       downloadPromise,
-      downloadType: DownloadType.Audio
+      downloadType: DownloadType.Audio,
+      encodedFileName
     });
     res.status(200).json(info);
   } catch (err) {
@@ -75,11 +80,15 @@ router.get('/api/dl-video', async (req, res) => {
       return;
     }
     const info = await DownloadInfo(url);
-    const downloadPromise = DownloadVideo(url);
+    const encodedFileName = `${encodeRFC5987ValueChars(info.title)}.${
+      FileExtension.Video
+    }`;
+    const downloadPromise = DownloadVideo(url, encodedFileName);
     requestCache.set(url, {
       downloadInfo: info,
       downloadPromise,
-      downloadType: DownloadType.Video
+      downloadType: DownloadType.Video,
+      encodedFileName
     });
     res.status(200).json(info);
   } catch (err) {

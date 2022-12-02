@@ -15,8 +15,9 @@ export interface IRequestInfo {
   downloadPromise: Promise<void>;
   downloadType: DownloadType;
   downloadInfo: IDownloadInfo;
+  encodedFileName: string;
   status?: DownloadStatus;
-  filePath?: string;
+  fullPath?: string;
   createdAt?: number;
 }
 
@@ -46,18 +47,19 @@ export class RequestCache {
         const requestInfo = this.cache.get(key);
         if (requestInfo) {
           const fileInfo = this.extractFolderAndExt(requestInfo);
-          requestInfo.filePath = path.join(
+          requestInfo.fullPath = path.join(
             fileInfo.folder,
-            `${requestInfo.downloadInfo.title}.${fileInfo.ext}`
+            requestInfo.encodedFileName
           );
           requestInfo.status = DownloadStatus.Complete;
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         const requestInfo = this.cache.get(key);
         if (requestInfo) {
           requestInfo.status = DownloadStatus.Error;
         }
+        console.log(error);
       });
   }
 
@@ -98,7 +100,7 @@ export class RequestCache {
         ) {
           deletePromises.push(
             new Promise<void>((resolve) => {
-              fs.promises.rm(info.filePath ?? '').finally(() => {
+              fs.promises.rm(info.fullPath ?? '').finally(() => {
                 this.cache.delete(key);
                 resolve();
               });

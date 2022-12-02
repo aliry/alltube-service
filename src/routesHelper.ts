@@ -1,4 +1,3 @@
-import fs from 'fs-extra';
 import logger from './logger';
 import { DownloadStatus, DownloadType } from './constants';
 import { RequestCache } from './requestsCache';
@@ -37,14 +36,13 @@ export function respondIfRequestExist(
   }
   if (
     info.status === DownloadStatus.Complete &&
-    info.filePath &&
-    fs.existsSync(info.filePath)
+    info.encodedFileName &&
+    info.fullPath
   ) {
-    const fileName = info.filePath.split('/').pop() ?? '';
     res
       .status(200)
-      .set('X-File-Name', encodeRFC5987ValueChars(fileName))
-      .sendFile(info.filePath, { root: './' });
+      .set('X-File-Name', info.encodedFileName)
+      .sendFile(info.fullPath, { root: './' });
     return true;
   }
   if (info.status === DownloadStatus.Error) {
@@ -55,7 +53,7 @@ export function respondIfRequestExist(
   return false;
 }
 
-function encodeRFC5987ValueChars(str: string) {
+export function encodeRFC5987ValueChars(str: string) {
   return (
     encodeURIComponent(str)
       // Note that although RFC3986 reserves "!", RFC5987 does not,
