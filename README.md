@@ -4,7 +4,17 @@ APIs to use [yt-dlp](https://github.com/yt-dlp/yt-dlp) as a service
 
 ## Setup
 
-## Service
+## Debugging
+
+### Run and Debug in VSCode
+
+Simply "Launch Server.js" in VSCode
+
+### Run and Debug Docker container
+
+1. Run `docker:dev` to build and deploy docker container. (make sure you have docker service running on your machine)
+2. In VSCode lunch `Docker: Attach to Node`
+3. Add breakpoint in the js files inside the dist folder (make sure to run `npm run build` if needed)
 
 ## Details
 
