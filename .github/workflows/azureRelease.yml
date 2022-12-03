@@ -38,4 +38,4 @@ jobs:
           registry-password: ${{ secrets.REGISTRY_PASSWORD }}
           secure-environment-variables: API_KEY=${{ secrets.API_KEY}}
           name: aci-alltubeapp
-          location: 'west us'
+          location: 'west us 2'
