@@ -36,7 +36,14 @@ export const DownloadAudio = async (url: string, fileName: string) => {
 
 export const DownloadVideo = async (url: string, fileName: string) => {
   const flags = {
-    recodeVideo: FileExtension.Video,
+    /*
+     * Download format:
+     * 1- best video with height < 800 in ${FileExtension.Video} format + best audio in m4a format
+     * 2- best in ${FileExtension.Video} format
+     * 3- best video with height < 800 in any format (webm)
+     * 4- Second best video in any format
+     */
+    format: `bv*[ext=${FileExtension.Video}][height<800]+ba[ext=m4a]/b[ext=${FileExtension.Video}]/bv*[height<800]/bv.2`,
     output: fileName
   };
   const options = { cwd: DownloadsDir.Video };
