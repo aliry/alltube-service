@@ -15,6 +15,8 @@ RUN npm install
 # Build dist
 RUN npm run build
 
+ENV NODE_ENV=production
+
 # Expose port 3000
 EXPOSE 3000
 CMD ["npm", "start"]
