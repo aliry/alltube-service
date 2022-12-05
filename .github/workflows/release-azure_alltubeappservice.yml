@@ -30,8 +30,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}
-          tags: latest
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp
+          tags: ${{ github.sha }}
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v2
