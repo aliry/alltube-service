@@ -1,6 +1,6 @@
-on:
-  push:
-    branches: ['release-azure']
+# on:
+#   push:
+#     branches: ['release-azure']
 name: Publish Docker image to Azure
 
 jobs:
