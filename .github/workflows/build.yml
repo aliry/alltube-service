@@ -2,8 +2,7 @@ name: Build
 on:
   push:
     branches-ignore:
-      - master
-      - staging
+      - release-azure
   workflow_dispatch:
 
 jobs:
