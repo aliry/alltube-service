@@ -26,8 +26,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 router.get('/', (req, res) => {
+  const revision = require('child_process')
+    .execSync('git rev-parse HEAD')
+    .toString()
+    .trim();
   res.json({
-    message: 'AllTube service is running!'
+    message: 'AllTube service is running!',
+    revision
   });
 });
 
