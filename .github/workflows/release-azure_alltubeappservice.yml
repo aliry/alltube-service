@@ -26,16 +26,19 @@ jobs:
           username: ${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}
           password: ${{ secrets.AzureAppService_ContainerPassword_f8dd792905e744d2a350782f21e60ba1 }}
 
-      - run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}
+          tags: latest
 
-      # - name: Build and push container image to registry
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     push: true
-      #     tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}
-      #     file: ./Dockerfile
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
@@ -52,4 +55,4 @@ jobs:
           app-name: 'alltubeappservice'
           slot-name: 'production'
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_74cd88f5951b4e56b99cfc3e749def21 }}
-          images: '${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.AzureAppService_ContainerUsername_08427af994294c1b95d02296f6405470 }}/alltubeapp:${{ github.sha }}'
+          images: ${{ steps.meta.outputs.tags }}
