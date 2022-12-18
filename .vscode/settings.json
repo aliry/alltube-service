@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/0ce7e01a-da8e-40cd-bd7d-6aa71eba1ada/appservices/subscriptions/0ce7e01a-da8e-40cd-bd7d-6aa71eba1ada/resourceGroups/alltubeappservice_group/providers/Microsoft.Web/sites/alltubeappservice",
+  "appService.deploySubpath": "."
+}
