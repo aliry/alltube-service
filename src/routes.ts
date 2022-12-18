@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'development') {
 router.get('/', (req, res) => {
   res.json({
     message: 'AllTube service is running!',
-    revision: '1.0.1'
+    revision: '1.0.2'
   });
 });
 
