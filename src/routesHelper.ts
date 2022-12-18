@@ -27,28 +27,27 @@ export function respondIfRequestExist(
   requestCache: RequestCache
 ): boolean {
   const info = requestCache.get(url, downloadType);
-  if (!info) {
-    return false;
-  }
-  if (info.status === DownloadStatus.InProgress) {
-    res.status(200).json({ message: 'Download in progress.' });
-    return true;
-  }
-  if (
-    info.status === DownloadStatus.Complete &&
-    info.encodedFileName &&
-    info.fullPath
-  ) {
-    res
-      .status(200)
-      .set('X-File-Name', info.encodedFileName)
-      .sendFile(info.fullPath, { root: './' });
-    return true;
-  }
-  if (info.status === DownloadStatus.Error) {
-    res.status(500).json({ message: 'An error occurred while downloading.' });
-    requestCache.delete(url, downloadType);
-    return true;
+  if (info) {
+    if (info.status === DownloadStatus.InProgress) {
+      res.status(200).json(info.downloadInfo);
+      return true;
+    }
+    if (
+      info.status === DownloadStatus.Complete &&
+      info.encodedFileName &&
+      info.fullPath
+    ) {
+      res
+        .status(200)
+        .set('X-File-Name', info.encodedFileName)
+        .sendFile(info.fullPath, { root: './' });
+      return true;
+    }
+    if (info.status === DownloadStatus.Error) {
+      res.status(500).json({ message: 'An error occurred while downloading.' });
+      requestCache.delete(url, downloadType);
+      return true;
+    }
   }
   return false;
 }

@@ -1,5 +1,5 @@
 import youtubeDl from 'youtube-dl-exec';
-import { DownloadsDir, FileExtension } from './constants';
+import { DownloadsDir, DownloadStatus, FileExtension } from './constants';
 
 export interface IDownloadInfo {
   title: string;
@@ -7,6 +7,7 @@ export interface IDownloadInfo {
   thumbnail: string;
   description: string;
   duration: number;
+  status?: DownloadStatus;
 }
 
 export const DownloadInfo = async (url: string): Promise<IDownloadInfo> => {

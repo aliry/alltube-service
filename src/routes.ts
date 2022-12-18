@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { DownloadAudio, DownloadInfo, DownloadVideo } from './downloader';
-import { DownloadType, FileExtension } from './constants';
+import { DownloadStatus, DownloadType, FileExtension } from './constants';
 import { RequestCache } from './requestsCache';
 import {
   encodeRFC5987ValueChars,
@@ -65,6 +65,7 @@ router.get('/api/dl-audio', async (req, res) => {
       downloadType: DownloadType.Audio,
       encodedFileName
     });
+    info.status = DownloadStatus.InProgress;
     res.status(200).json(info);
   } catch (err) {
     handleDownloadError(err, res);
@@ -91,6 +92,7 @@ router.get('/api/dl-video', async (req, res) => {
       downloadType: DownloadType.Video,
       encodedFileName
     });
+    info.status = DownloadStatus.InProgress;
     res.status(200).json(info);
   } catch (err) {
     handleDownloadError(err, res);
