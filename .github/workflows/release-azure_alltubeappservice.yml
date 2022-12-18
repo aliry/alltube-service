@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'alltubeappservice'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CFF0FF3FD8A6445D950AF1F14F5F171F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_82B8B9554B8847F7BBE41E9DC400CEA8 }}
           package: .
