@@ -23,8 +23,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - run: |
-          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:${{ github.sha }}
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:latest
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:latest
 
       - name: 'Deploy to Azure Container Instances'
         uses: 'azure/aci-deploy@v1'
@@ -32,7 +32,7 @@ jobs:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           dns-name-label: alltubedns${{ github.run_number }}
           ports: 3000
-          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:${{ github.sha }}
+          image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/alltubeapp:latest
           registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           registry-username: ${{ secrets.REGISTRY_USERNAME }}
           registry-password: ${{ secrets.REGISTRY_PASSWORD }}
