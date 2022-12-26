@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import { DownloadAudio, DownloadInfo, DownloadVideo } from './downloader';
+import {
+  DownloadAudio,
+  DownloadInfo,
+  DownloadVideo,
+  IDownloadInfo
+} from './downloader';
 import { DownloadStatus, DownloadType, FileExtension } from './constants';
 import { RequestCache } from './requestsCache';
 import {
@@ -28,7 +33,7 @@ if (process.env.NODE_ENV === 'development') {
 router.get('/', (req, res) => {
   res.json({
     message: 'AllTube service is running!',
-    revision: '1.0.2'
+    revision: '1.0.3'
   });
 });
 
@@ -55,9 +60,7 @@ router.get('/api/dl-audio', async (req, res) => {
       return;
     }
     const info = await DownloadInfo(url);
-    const encodedFileName = `${encodeRFC5987ValueChars(info.title)}.${
-      FileExtension.Audio
-    }`;
+    const encodedFileName = getFileName(info, DownloadType.Audio);
     const downloadPromise = DownloadAudio(url, encodedFileName);
     requestCache.set(url, {
       downloadInfo: info,
@@ -82,9 +85,7 @@ router.get('/api/dl-video', async (req, res) => {
       return;
     }
     const info = await DownloadInfo(url);
-    const encodedFileName = `${encodeRFC5987ValueChars(info.title)}.${
-      FileExtension.Video
-    }`;
+    const encodedFileName = getFileName(info, DownloadType.Video);
     const downloadPromise = DownloadVideo(url, encodedFileName);
     requestCache.set(url, {
       downloadInfo: info,
@@ -98,5 +99,22 @@ router.get('/api/dl-video', async (req, res) => {
     handleDownloadError(err, res);
   }
 });
+
+function getFileName(info: IDownloadInfo, type: DownloadType) {
+  const extension =
+    type === DownloadType.Audio ? FileExtension.Audio : FileExtension.Video;
+  let fileName = info.title;
+
+  if (fileName && fileName.length > 0) {
+    let encodedFileName = encodeRFC5987ValueChars(fileName);
+    while (encodedFileName.length > 250) {
+      fileName = fileName.substring(0, fileName.length - 3);
+      encodedFileName = encodeRFC5987ValueChars(fileName);
+    }
+    return `${encodedFileName}.${extension}`;
+  } else {
+    return `${info.id}.${extension}`;
+  }
+}
 
 export default router;
