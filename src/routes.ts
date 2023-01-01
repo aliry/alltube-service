@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === 'development') {
 router.get('/', (req, res) => {
   res.json({
     message: 'AllTube service is running!',
-    revision: '1.0.5'
+    revision: '1.0.6'
   });
 });
 
@@ -119,7 +119,7 @@ function getFileName(info: IDownloadInfo, type: DownloadType) {
 
   if (fileName && fileName.length > 0) {
     let encodedFileName = encodeRFC5987ValueChars(fileName);
-    while (encodedFileName.length > 250) {
+    while (encodedFileName.length > 200) {
       fileName = fileName.substring(0, fileName.length - 3);
       encodedFileName = encodeRFC5987ValueChars(fileName);
     }
