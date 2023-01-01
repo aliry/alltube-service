@@ -59,7 +59,7 @@ export class RequestCache {
         if (requestInfo) {
           requestInfo.status = DownloadStatus.Error;
         }
-        console.log(error);
+        logger.error(error);
       });
   }
 

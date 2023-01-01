@@ -33,8 +33,20 @@ if (process.env.NODE_ENV === 'development') {
 router.get('/', (req, res) => {
   res.json({
     message: 'AllTube service is running!',
-    revision: '1.0.4'
+    revision: '1.0.5'
   });
+});
+
+router.get('/hidden/error-log', (req, res) => {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.HIDDEN_ROUTE_KEY &&
+    req.headers['x-hidden-route-key'] === process.env.HIDDEN_ROUTE_KEY
+  ) {
+    res.sendFile('error.log', { root: './logs' });
+  } else {
+    res.status(404).end();
+  }
 });
 
 router.get('/api/dl-info', async (req, res) => {
@@ -107,7 +119,7 @@ function getFileName(info: IDownloadInfo, type: DownloadType) {
 
   if (fileName && fileName.length > 0) {
     let encodedFileName = encodeRFC5987ValueChars(fileName);
-    while (encodedFileName.length > 200) {
+    while (encodedFileName.length > 250) {
       fileName = fileName.substring(0, fileName.length - 3);
       encodedFileName = encodeRFC5987ValueChars(fileName);
     }
